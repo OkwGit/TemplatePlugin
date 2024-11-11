@@ -9,7 +9,7 @@ public class CommandTemplate extends VCommand {
 
 	public CommandTemplate(Template plugin) {
 		super(plugin);
-		this.setPermission(Permission.EXAMPLE_PERMISSION);
+		this.setPermission(Permission.TEMPLATE_USE);
 		this.addSubCommand(new CommandTemplateReload(plugin));
 	}
 

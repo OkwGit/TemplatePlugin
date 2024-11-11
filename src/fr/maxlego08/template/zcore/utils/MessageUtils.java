@@ -27,7 +27,7 @@ public abstract class MessageUtils extends LocationUtils {
     private final static int CENTER_PX = 154;
 
     /**
-     * Sends a message without prefix to the specified command sender.
+     * Sends a message without a prefix to the specified command sender.
      *
      * @param player  the command sender to send the message to.
      * @param message the message to send.
@@ -38,7 +38,7 @@ public abstract class MessageUtils extends LocationUtils {
     }
 
     /**
-     * Sends a message without prefix to the specified command sender.
+     * Sends a message without a prefix to the specified command sender.
      *
      * @param player  the command sender to send the message to.
      * @param message the message to send.
@@ -93,7 +93,7 @@ public abstract class MessageUtils extends LocationUtils {
      */
     protected void message(CommandSender sender, Message message, Object... args) {
         if (sender instanceof ConsoleCommandSender) {
-            if (message.getMessages().size() > 0) {
+            if (!message.getMessages().isEmpty()) {
                 message.getMessages().forEach(msg -> message(sender, getMessage(msg, args)));
             } else {
                 message(sender, Message.PREFIX.msg() + getMessage(message, args));
@@ -102,7 +102,7 @@ public abstract class MessageUtils extends LocationUtils {
             Player player = (Player) sender;
             switch (message.getType()) {
                 case CENTER:
-                    if (message.getMessages().size() > 0) {
+                    if (!message.getMessages().isEmpty()) {
                         message.getMessages().forEach(msg -> sender.sendMessage(this.getCenteredMessage(this.papi(getMessage(msg, args), player))));
                     } else {
                         sender.sendMessage(this.getCenteredMessage(this.papi(getMessage(message, args), player)));

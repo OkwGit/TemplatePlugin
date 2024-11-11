@@ -61,7 +61,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("deprecation")
 public abstract class ZUtils extends MessageUtils {
 
     // For plugin support from 1.8 to 1.12
@@ -1125,6 +1124,12 @@ public abstract class ZUtils extends MessageUtils {
         return false;
     }
 
+    /**
+     * Processes all .yml files in the specified folder using the provided consumer.
+     *
+     * @param folder   the folder to search for .yml files.
+     * @param consumer the consumer to process each .yml file.
+     */
     protected void files(File folder, Consumer<File> consumer) {
         try (Stream<Path> s = Files.walk(Paths.get(folder.getPath()))) {
             s.skip(1).map(Path::toFile).filter(File::isFile).filter(e -> e.getName().endsWith(".yml"))

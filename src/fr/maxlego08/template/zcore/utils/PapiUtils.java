@@ -9,9 +9,6 @@ import java.util.List;
 
 /**
  * Utility class for applying PlaceholderAPI transformations to various objects.
- * Extends {@link TranslationHelper}.
- *
- * @see TranslationHelper
  */
 public class PapiUtils {
 
