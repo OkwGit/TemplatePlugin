@@ -90,12 +90,6 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>com.github.Maxlego08</groupId>
-            <artifactId>zTranslator</artifactId>
-            <version>1.0.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>dev.folia</groupId>
             <artifactId>folia-api</artifactId>
             <version>1.19.4-R0.1-SNAPSHOT</version>

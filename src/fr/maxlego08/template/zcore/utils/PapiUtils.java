@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @see TranslationHelper
  */
-public class PapiUtils extends TranslationHelper {
+public class PapiUtils {
 
     /**
      * Applies PlaceholderAPI transformations to the display name and lore of an ItemStack.
