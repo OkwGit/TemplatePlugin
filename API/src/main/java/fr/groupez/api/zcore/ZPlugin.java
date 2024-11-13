@@ -2,8 +2,11 @@ package fr.groupez.api.zcore;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.impl.PlatformScheduler;
 import fr.groupez.api.command.CommandManager;
 import fr.groupez.api.command.VCommand;
+import fr.groupez.api.messages.MessageLoader;
 import fr.groupez.api.placeholder.LocalPlaceholder;
 import fr.groupez.api.placeholder.Placeholder;
 import fr.groupez.api.zcore.logger.Logger;
@@ -16,16 +19,23 @@ import fr.groupez.api.zcore.utils.storage.Persist;
 import fr.groupez.api.zcore.utils.storage.Savable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 
+import java.io.*;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Abstract class for plugins that uses the ZCore API. This class contains
@@ -65,6 +75,7 @@ public abstract class ZPlugin extends JavaPlugin {
      * The time when the plugin is enabled.
      */
     private long enableTime;
+    private PlatformScheduler scheduler;
 
     /**
      * Called when the plugin is enabled. This method is called after the
@@ -84,6 +95,9 @@ public abstract class ZPlugin extends JavaPlugin {
 
         this.gson = getGsonBuilder().create();
         this.persist = new Persist(this);
+
+        MessageLoader messageLoader = new MessageLoader(this);
+        messageLoader.load();
 
         this.commandManager = new CommandManager(this);
     }
@@ -257,6 +271,104 @@ public abstract class ZPlugin extends JavaPlugin {
                 save.load(this.persist);
             }
         });
+    }
+
+    public boolean resourceExist(String resourcePath) {
+        if (resourcePath != null && !resourcePath.equals("")) {
+            resourcePath = resourcePath.replace('\\', '/');
+            InputStream in = this.getResource(resourcePath);
+            return in != null;
+        }
+        return false;
+    }
+
+    public void saveOrUpdateConfiguration(String resourcePath, String toPath, boolean deep) {
+
+        File file = new File(getDataFolder(), toPath);
+        if (!file.exists()) {
+            saveResource(resourcePath, toPath, false);
+            return;
+        }
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+        try {
+
+            InputStream inputStream = this.getResource(resourcePath);
+
+            if (inputStream == null) {
+                this.getLogger().severe("Cannot find file " + resourcePath);
+                return;
+            }
+
+            Reader defConfigStream = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+
+            Set<String> defaultKeys = defConfig.getKeys(deep);
+
+            boolean configUpdated = false;
+            for (String key : defaultKeys) {
+                if (!config.contains(key)) {
+                    this.getLogger().info("I can’t find " + key + " in the file " + file.getName());
+                    configUpdated = true;
+                }
+            }
+
+            config.setDefaults(defConfig);
+            config.options().copyDefaults(true);
+
+            if (configUpdated) {
+                this.getLogger().info("Update file " + toPath);
+                config.save(file);
+            }
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public void saveResource(String resourcePath, String toPath, boolean replace) {
+        if (resourcePath != null && !resourcePath.equals("")) {
+            resourcePath = resourcePath.replace('\\', '/');
+            InputStream in = this.getResource(resourcePath);
+            if (in == null) {
+                throw new IllegalArgumentException("The embedded resource '" + resourcePath + "' cannot be found in " + this.getFile());
+            } else {
+                File outFile = new File(getDataFolder(), toPath);
+                int lastIndex = toPath.lastIndexOf(47);
+                File outDir = new File(getDataFolder(), toPath.substring(0, Math.max(lastIndex, 0)));
+                if (!outDir.exists()) {
+                    outDir.mkdirs();
+                }
+
+                try {
+                    if (outFile.exists() && !replace) {
+                        getLogger().log(Level.WARNING, "Could not save " + outFile.getName() + " to " + outFile + " because " + outFile.getName() + " already exists.");
+                    } else {
+                        OutputStream out = Files.newOutputStream(outFile.toPath());
+                        byte[] buf = new byte[1024];
+
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            out.write(buf, 0, len);
+                        }
+
+                        out.close();
+                        in.close();
+                    }
+                } catch (IOException exception) {
+                    getLogger().log(Level.SEVERE, "Could not save " + outFile.getName() + " to " + outFile, exception);
+                }
+
+            }
+        } else throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+    }
+
+    public PlatformScheduler getScheduler() {
+        if(this.scheduler == null) {
+            this.scheduler = new FoliaLib(this).getScheduler();
+        }
+        return this.scheduler;
     }
 
 }

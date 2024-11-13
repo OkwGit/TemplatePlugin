@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -85,11 +87,11 @@ public class LocalPlaceholder {
         return null;
     }
 
-    public void register(String startWith, ReturnBiConsumer<Player, String, String> biConsumer) {
+    public void register(String startWith, BiFunction<Player, String, String> biConsumer) {
         this.autoPlaceholders.add(new AutoPlaceholder(startWith, biConsumer));
     }
 
-    public void register(String startWith, ReturnConsumer<Player, String> biConsumer) {
+    public void register(String startWith, Function<Player, String> biConsumer) {
         this.autoPlaceholders.add(new AutoPlaceholder(startWith, biConsumer));
     }
 

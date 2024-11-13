@@ -12,7 +12,7 @@ public enum Permission {
         this.permission = this.name().toLowerCase().replace("_", ".");
     }
 
-    public String getPermission() {
+    public String asPermission() {
         return permission;
     }
 

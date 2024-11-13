@@ -1,4 +1,4 @@
-package fr.groupez.api.command.commands;
+package fr.groupez.template.commands;
 
 import fr.groupez.api.command.VCommand;
 import fr.groupez.api.zcore.ZPlugin;

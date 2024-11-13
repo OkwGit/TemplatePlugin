@@ -1,267 +1,167 @@
 package fr.groupez.api.zcore.utils;
 
-import fr.groupez.api.zcore.enums.Message;
-import fr.groupez.api.zcore.enums.MessageType;
-import fr.groupez.api.zcore.utils.nms.NmsVersion;
-import fr.groupez.api.zcore.utils.players.ActionBar;
+import fr.groupez.api.messages.BossBarAnimation;
+import fr.groupez.api.messages.MessageType;
+import fr.groupez.api.messages.Messages;
+import fr.groupez.api.messages.types.BossBarMessage;
+import fr.groupez.api.messages.types.ClassicMessage;
+import fr.groupez.api.messages.types.TitleMessage;
+import fr.groupez.api.zcore.ZPlugin;
+import fr.groupez.api.zcore.enums.Permission;
+import fr.maxlego08.ztranslator.zcore.utils.nms.NMSUtils;
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Constructor;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Allows you to manage messages sent to players and the console.
- * Provides various utility methods for sending and formatting messages.
- * Extends {@link LocationUtils}.
- *
- * @see LocationUtils
- */
 public abstract class MessageUtils extends LocationUtils {
 
-    private final static int CENTER_PX = 154;
-
-    /**
-     * Sends a message without prefix to the specified command sender.
-     *
-     * @param player  the command sender to send the message to.
-     * @param message the message to send.
-     * @param args    the arguments for the message.
-     */
-    protected void messageWO(CommandSender player, Message message, Object... args) {
-        player.sendMessage(getMessage(message, args));
-    }
-
-    /**
-     * Sends a message without prefix to the specified command sender.
-     *
-     * @param player  the command sender to send the message to.
-     * @param message the message to send.
-     * @param args    the arguments for the message.
-     */
-    protected void messageWO(CommandSender player, String message, Object... args) {
-        player.sendMessage(getMessage(message, args));
-    }
-
-    /**
-     * Sends a message with prefix to the specified command sender.
-     *
-     * @param sender  the command sender to send the message to.
-     * @param message the message to send.
-     * @param args    the arguments for the message.
-     */
-    protected void message(CommandSender sender, String message, Object... args) {
-        sender.sendMessage(Message.PREFIX.msg() + getMessage(message, args));
-    }
-
-    /**
-     * Sends a message to the specified command sender.
-     *
-     * @param sender  the command sender to send the message to.
-     * @param message the message to send.
-     */
-    private void message(CommandSender sender, String message) {
-        sender.sendMessage(color(message));
-    }
-
-    /**
-     * Sends a chat message to the specified player.
-     *
-     * @param player  the player to send the message to.
-     * @param message the message to send.
-     * @param args    the arguments for the message.
-     */
-    private void sendTchatMessage(Player player, Message message, Object... args) {
-        if (message.getMessages().size() > 1) {
-            message.getMessages().forEach(msg -> message(player, this.papi(getMessage(msg, args), player)));
-        } else {
-            message(player, this.papi((message.getType() == MessageType.WITHOUT_PREFIX ? "" : Message.PREFIX.msg()) + getMessage(message, args), player));
-        }
-    }
-
-    /**
-     * Allows you to send a message to a command sender.
-     *
-     * @param sender  the user who sent the command.
-     * @param message the message - using the Message enum for simplified message management.
-     * @param args    the arguments - the arguments work in pairs, you must put for example %test% and then the value.
-     */
-    protected void message(CommandSender sender, Message message, Object... args) {
-        if (sender instanceof ConsoleCommandSender) {
-            if (message.getMessages().size() > 0) {
-                message.getMessages().forEach(msg -> message(sender, getMessage(msg, args)));
-            } else {
-                message(sender, Message.PREFIX.msg() + getMessage(message, args));
-            }
-        } else {
-            Player player = (Player) sender;
-            switch (message.getType()) {
-                case CENTER:
-                    if (message.getMessages().size() > 0) {
-                        message.getMessages().forEach(msg -> sender.sendMessage(this.getCenteredMessage(this.papi(getMessage(msg, args), player))));
-                    } else {
-                        sender.sendMessage(this.getCenteredMessage(this.papi(getMessage(message, args), player)));
-                    }
-                    break;
-                case ACTION:
-                    this.actionMessage(player, message, args);
-                    break;
-                case TCHAT_AND_ACTION:
-                    this.actionMessage(player, message, args);
-                    sendTchatMessage(player, message, args);
-                    break;
-                case TCHAT:
-                case WITHOUT_PREFIX:
-                    sendTchatMessage(player, message, args);
-                    break;
-                case TITLE:
-                    String title = message.getTitle();
-                    String subTitle = message.getSubTitle();
-                    int fadeInTime = message.getStart();
-                    int showTime = message.getTime();
-                    int fadeOutTime = message.getEnd();
-                    this.title(player, this.papi(this.getMessage(title, args), player), this.papi(this.getMessage(subTitle, args), player), fadeInTime, showTime, fadeOutTime);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Broadcasts a message to all online players and the console.
-     *
-     * @param message the message to broadcast.
-     * @param args    the arguments for the message.
-     */
-    protected void broadcast(Message message, Object... args) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            message(player, message, args);
-        }
-        message(Bukkit.getConsoleSender(), message, args);
-    }
-
-    /**
-     * Sends an action bar message to the specified player.
-     *
-     * @param player  the player to send the message to.
-     * @param message the message to send.
-     * @param args    the arguments for the message.
-     */
-    protected void actionMessage(Player player, Message message, Object... args) {
-        ActionBar.sendActionBar(player, color(this.papi(getMessage(message, args), player)));
-    }
-
-    /**
-     * Gets the formatted message with arguments replaced.
-     *
-     * @param message the message to format.
-     * @param args    the arguments for the message.
-     * @return the formatted message.
-     */
-    protected String getMessage(Message message, Object... args) {
-        return getMessage(message.getMessage(), args);
-    }
-
-    /**
-     * Gets the formatted message with arguments replaced.
-     *
-     * @param message the message to format.
-     * @param args    the arguments for the message.
-     * @return the formatted message.
-     */
-    protected String getMessage(String message, Object... args) {
-        if (args.length % 2 != 0) {
+    public static String getString(String message, Object[] newArgs) {
+        if (newArgs.length % 2 != 0) {
             throw new IllegalArgumentException("Number of invalid arguments. Arguments must be in pairs.");
         }
 
-        for (int i = 0; i < args.length; i += 2) {
-            if (args[i] == null || args[i + 1] == null) {
+        for (int i = 0; i < newArgs.length; i += 2) {
+            if (newArgs[i] == null || newArgs[i + 1] == null) {
                 throw new IllegalArgumentException("Keys and replacement values must not be null.");
             }
-            message = message.replace(args[i].toString(), args[i + 1].toString());
+            message = message.replace(newArgs[i].toString(), newArgs[i + 1].toString());
         }
         return message;
     }
 
-    /**
-     * Gets a class from the net.minecraft.server package.
-     *
-     * @param name the name of the class.
-     * @return the class object, or null if not found.
-     */
-    protected final Class<?> getNMSClass(String name) {
-        try {
-            return Class.forName("net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + "." + name);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    protected void message(UUID uniqueId, Messages message, Object... args) {
+        Player player = Bukkit.getPlayer(uniqueId);
+        if (player == null) return;
+        message(player, message, args);
     }
 
-    /**
-     * Sends a title to the player.
-     *
-     * @param player      the player to send the title to.
-     * @param title       the title text.
-     * @param subtitle    the subtitle text.
-     * @param fadeInTime  the fade-in time in ticks.
-     * @param showTime    the showtime in ticks.
-     * @param fadeOutTime the fade-out time in ticks.
-     */
-    protected void title(Player player, String title, String subtitle, int fadeInTime, int showTime, int fadeOutTime) {
-        if (NmsVersion.nmsVersion.isNewMaterial()) {
-            player.sendTitle(title, subtitle, fadeInTime, showTime, fadeOutTime);
-            return;
-        }
-
-        try {
-            Object chatTitle = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + title + "\"}");
-            Constructor<?> titleConstructor = getNMSClass("PacketPlayOutTitle").getConstructor(getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0], getNMSClass("IChatBaseComponent"), int.class, int.class, int.class);
-            Object packet = titleConstructor.newInstance(getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("TITLE").get(null), chatTitle, fadeInTime, showTime, fadeOutTime);
-
-            Object chatsTitle = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + subtitle + "\"}");
-            Constructor<?> timingTitleConstructor = getNMSClass("PacketPlayOutTitle").getConstructor(getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0], getNMSClass("IChatBaseComponent"), int.class, int.class, int.class);
-            Object timingPacket = timingTitleConstructor.newInstance(getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("SUBTITLE").get(null), chatsTitle, fadeInTime, showTime, fadeOutTime);
-
-            sendPacket(player, packet);
-            sendPacket(player, timingPacket);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected void broadcast(Permission permission, Messages message, Object... args) {
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            if (player.hasPermission(permission.asPermission())) {
+                message(player, message, args);
+            }
+        });
+        message(Bukkit.getConsoleSender(), message, args);
     }
 
-    /**
-     * Sends a packet to the player.
-     *
-     * @param player the player to send the packet to.
-     * @param packet the packet to send.
-     */
-    protected final void sendPacket(Player player, Object packet) {
-        try {
-            Object handle = player.getClass().getMethod("getHandle").invoke(player);
-            Object playerConnection = handle.getClass().getField("playerConnection").get(handle);
-            playerConnection.getClass().getMethod("sendPacket", getNMSClass("Packet")).invoke(playerConnection, packet);
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected void broadcast(Messages message, Object... args) {
+        Bukkit.getOnlinePlayers().forEach(player -> message(player, message, args));
+        message(Bukkit.getConsoleSender(), message, args);
+    }
+
+    protected void message(CommandSender sender, Messages message, Object... args) {
+
+        if (sender instanceof Player player) {
+            message.getMessages().forEach(essentialsMessage -> {
+
+                if (essentialsMessage instanceof ClassicMessage classicMessage) {
+
+                    switch (essentialsMessage.messageType()) {
+                        case TCHAT, WITHOUT_PREFIX -> sendTchatMessage(sender, classicMessage, args);
+                        case ACTION -> classicMessage.messages().forEach(currentMessage -> {
+                            sender.sendActionBar(getComponentMessage(currentMessage, args));
+                        });
+                        case CENTER -> classicMessage.messages().forEach(currentMessage -> {
+                            sender.sendMessage(getCenteredMessage(getMessage(currentMessage, args)));
+                        });
+                    }
+
+                } else if (essentialsMessage instanceof BossBarMessage bossBarMessage) {
+                    BossBar bossBar = BossBar.bossBar(getComponent(papi(bossBarMessage.text(), player)), 1f, bossBarMessage.getColor(), bossBarMessage.getOverlay(), bossBarMessage.getFlags());
+                    player.showBossBar(bossBar);
+
+                    new BossBarAnimation(JavaPlugin.getPlugin(ZPlugin.class), player, bossBar, bossBarMessage.duration());
+                } else if (essentialsMessage instanceof TitleMessage titleMessage) {
+                    Component title = getComponent(papi(getMessage(titleMessage.title(), args), player));
+                    Component subtitle = getComponent(papi(getMessage(titleMessage.subtitle(), args), player));
+
+                    player.showTitle(Title.title(title, subtitle, Title.Times.times(Duration.ofMillis(titleMessage.start()), Duration.ofMillis(titleMessage.time()), Duration.ofMillis(titleMessage.end()))));
+                }
+            });
+        } else {
+            message.getMessages().forEach(essentialsMessage -> {
+                if (essentialsMessage instanceof ClassicMessage classicMessage) {
+                    sendTchatMessage(sender, classicMessage, args);
+                }
+            });
         }
     }
 
-    /**
-     * Gets a centered message.
-     *
-     * @param message the message to center.
-     * @return the centered message.
-     */
+    private void sendTchatMessage(CommandSender sender, ClassicMessage classicMessage, Object... args) {
+        boolean isWithoutPrefix = classicMessage.messageType() == MessageType.WITHOUT_PREFIX || classicMessage.messages().size() > 1;
+        classicMessage.messages().forEach(message -> sender.sendMessage((isWithoutPrefix ? "" : Messages.PREFIX.getMessageAsString()) + getMessage(message, args)));
+    }
+
+    public Component getComponentMessage(Messages message, Object... args) {
+        List<String> strings = message.getMessageAsStringList();
+        if (strings.size() > 0) {
+            TextComponent.Builder component = Component.text();
+            strings.forEach(currentMessage -> {
+                component.append(getComponent(getMessage(currentMessage, args)));
+                component.append(Component.text("\n"));
+            });
+            return component.build();
+        }
+        return getComponent(getMessage(message.getMessageAsString(), args));
+    }
+
+    public Component getComponentMessage(String message, Object... args) {
+        return getComponent(getMessage(message, args));
+    }
+
+    public Component getComponent(String message) {
+        return Component.text(color(message));
+    }
+
+    protected String getMessage(Messages message, Object... args) {
+        return getMessage(String.join("\n", message.getMessageAsStringList()), args);
+    }
+
+    protected String getMessage(String message, Object... args) {
+
+        List<Object> modifiedArgs = new ArrayList<>();
+        for (Object arg : args) handleArg(arg, modifiedArgs);
+        Object[] newArgs = modifiedArgs.toArray();
+
+        return getString(message, newArgs);
+    }
+
+    private void handleArg(Object arg, List<Object> modifiedArgs) {
+        if (arg instanceof Player player) {
+            addPlayerDetails(modifiedArgs, player.getName(), player.getDisplayName());
+        } else {
+            modifiedArgs.add(arg);
+        }
+    }
+
+    private void addPlayerDetails(List<Object> modifiedArgs, String name, String displayName) {
+        modifiedArgs.add("%player%");
+        modifiedArgs.add(name);
+        modifiedArgs.add("%displayName%");
+        modifiedArgs.add(displayName);
+    }
+
+    // ToDo, rework with component
     protected String getCenteredMessage(String message) {
-        if (message == null || message.equals("")) {
-            return "";
-        }
+        if (message == null || message.equals("")) return "";
+
+        int CENTER_PX = 154;
+
         message = ChatColor.translateAlternateColorCodes('&', message);
 
         int messagePxSize = 0;
@@ -293,41 +193,9 @@ public abstract class MessageUtils extends LocationUtils {
         return sb + message;
     }
 
-    /**
-     * Broadcasts a centered message to all online players.
-     *
-     * @param messages the list of messages to broadcast.
-     */
-    protected void broadcastCenterMessage(List<String> messages) {
-        messages.stream().map(this::getCenteredMessage).forEach(e -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                messageWO(player, e);
-            }
-        });
-    }
-
-    /**
-     * Broadcasts an action bar message to all online players.
-     *
-     * @param message the message to broadcast.
-     */
-    protected void broadcastAction(String message) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            ActionBar.sendActionBar(player, papi(message, player));
-        }
-    }
-
-    /**
-     * Translates alternate color codes in the message string.
-     *
-     * @param message the message to color.
-     * @return the colored message.
-     */
     protected String color(String message) {
-        if (message == null) {
-            return null;
-        }
-        if (NmsVersion.nmsVersion.isHexVersion()) {
+        if (message == null) return null;
+        if (NMSUtils.isHexColor()) {
             Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
             Matcher matcher = pattern.matcher(message);
             while (matcher.find()) {
@@ -336,6 +204,10 @@ public abstract class MessageUtils extends LocationUtils {
                 matcher = pattern.matcher(message);
             }
         }
+        MiniMessage miniMessage = MiniMessage.builder().build();
+        Component component = miniMessage.deserialize(message);
+        message = LegacyComponentSerializer.legacyAmpersand().serialize(component);
         return net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', message);
     }
+
 }

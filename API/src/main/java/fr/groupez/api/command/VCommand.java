@@ -2,7 +2,7 @@ package fr.groupez.api.command;
 
 import fr.groupez.api.save.Config;
 import fr.groupez.api.zcore.ZPlugin;
-import fr.groupez.api.zcore.enums.Message;
+import fr.groupez.api.messages.Messages;
 import fr.groupez.api.zcore.enums.Permission;
 import fr.groupez.api.zcore.utils.commands.Arguments;
 import fr.groupez.api.zcore.utils.commands.CollectionBiConsumer;
@@ -109,7 +109,7 @@ public abstract class VCommand extends Arguments {
      * @return this VCommand instance.
      */
     protected VCommand setPermission(Permission permission) {
-        this.permission = permission.getPermission();
+        this.permission = permission.asPermission();
         return this;
     }
 
@@ -282,13 +282,13 @@ public abstract class VCommand extends Arguments {
     }
 
     /**
-     * Sets the description of this command using a {@link Message} enum.
+     * Sets the description of this command using a {@link Messages} enum.
      *
      * @param description the description to set.
      * @return this VCommand instance.
      */
-    protected VCommand setDescription(Message description) {
-        this.description = description.getMessage();
+    protected VCommand setDescription(Messages description) {
+        this.description = description.getMessageAsString();
         return this;
     }
 
@@ -650,7 +650,7 @@ public abstract class VCommand extends Arguments {
     public void syntaxMessage() {
         this.subVCommands.forEach(command -> {
             if (command.getPermission() == null || hasPermission(sender, command.getPermission())) {
-                message(this.sender, Message.COMMAND_SYNTAXE_HELP, "%syntax%", command.getSyntax(), "%description%",
+                message(this.sender, Messages.COMMAND_SYNTAXE_HELP, "%syntax%", command.getSyntax(), "%description%",
                         command.getDescription());
             }
         });

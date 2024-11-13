@@ -384,7 +384,7 @@ public abstract class ZUtils extends MessageUtils {
      * @return true if the entity has the permission, false otherwise.
      */
     protected boolean hasPermission(Permissible permissible, Permission permission) {
-        return permissible.hasPermission(permission.getPermission());
+        return permissible.hasPermission(permission.asPermission());
     }
 
     /**
@@ -471,16 +471,6 @@ public abstract class ZUtils extends MessageUtils {
         }
 
         return message == null ? null : message.replace("§", "&");
-    }
-
-    /**
-     * Converts a list of messages to include color codes.
-     *
-     * @param messages the list of messages to color.
-     * @return the list of colored messages.
-     */
-    protected List<String> color(List<String> messages) {
-        return messages.stream().map(this::color).collect(Collectors.toList());
     }
 
     /**

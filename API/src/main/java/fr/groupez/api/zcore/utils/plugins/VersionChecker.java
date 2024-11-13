@@ -1,6 +1,6 @@
 package fr.groupez.api.zcore.utils.plugins;
 
-import fr.groupez.api.zcore.enums.Message;
+import fr.groupez.api.messages.Messages;
 import fr.groupez.api.zcore.logger.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -75,7 +75,7 @@ public class VersionChecker implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    String prefix = Message.PREFIX.getMessage();
+                    String prefix = Messages.PREFIX.getMessageAsString();
                     player.sendMessage(prefix + "§cYou do not use the latest version of the plugin! Thank you for taking the latest version to avoid any risk of problem!");
                     player.sendMessage(prefix + "§fDownload plugin here: §a" + String.format(URL_RESOURCE, pluginID));
                 }
