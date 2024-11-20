@@ -60,10 +60,8 @@ allprojects {
         compileOnly "dev.dejvokep:boosted-yaml:1.3.6"
         compileOnly 'me.clip:placeholderapi:2.11.6'
 
-        compileOnly 'com.github.Maxlego08:zTranslator:1.0.0.0'
         compileOnly 'com.mojang:authlib:3.11.50' //only java 16 or newer
         //compileOnly 'com.mojang:authlib:1.6.25'
-        implementation 'com.github.cryptomorin:XSeries:11.2.1'
         implementation "com.github.technicallycoded:FoliaLib:main-SNAPSHOT"
     }
 
@@ -76,26 +74,7 @@ dependencies {
 shadowJar {
     dependsOn(jar)
 
-// Exclude specific files
-    exclude 'com/cryptomorin/xseries/messages/*'
-    exclude 'com/cryptomorin/xseries/particles/*'
-    exclude 'com/cryptomorin/xseries/XBiome*'
-    exclude 'com/cryptomorin/xseries/NMSExtras*'
-    exclude 'com/cryptomorin/xseries/NoteBlockMusic*'
-    exclude 'com/cryptomorin/xseries/SkullCacheListener*'
-    exclude 'com/cryptomorin/xseries/XTag*'
-    exclude 'com/cryptomorin/xseries/XPotion*'
-    exclude 'com/cryptomorin/xseries/XMaterial*'
-    exclude 'com/cryptomorin/xseries/XItemStack*'
-    exclude 'com/cryptomorin/xseries/XBlock*'
-    exclude 'com/cryptomorin/xseries/XEntity*'
-    exclude 'com/cryptomorin/xseries/XEnchantment*'
-    exclude 'com/cryptomorin/xseries/SkullUtils*'
-    exclude 'com/cryptomorin/xseries/ReflectionUtils*'
-
-    // Relocate packages
-    relocate 'com.cryptomorin.xseries', 'fr.groupez.api.zcore.utils.xseries'
-    relocate 'com.tcoded.folialib', 'fr.groupez.api.scheduler'
+    relocate 'com.tcoded.folialib', 'fr.groupez.template.libs.folia'
 
     archiveFileName = rootProject.name + "-" + rootProject.version + ".jar"
     destinationDirectory = rootProject.targetFolder

@@ -1,4 +1,9 @@
 name: '${name}'
 version: '${version}'
 main: fr.groupez.template.ZTemplate
-softdepend: [PlaceholderAPI]
+description: Default plugin description
+website: https://groupez.dev
+author: Maxlego08
+api-version: 1.21
+softdepend:
+  - PlaceholderAPI

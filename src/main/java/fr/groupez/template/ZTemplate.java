@@ -1,11 +1,10 @@
 package fr.groupez.template;
 
 
-import fr.groupez.template.commands.CommandTemplate;
-import fr.groupez.api.placeholder.LocalPlaceholder;
-import fr.groupez.api.save.Config;
-import fr.groupez.api.messages.MessageLoader;
-import fr.groupez.api.zcore.ZPlugin;
+import fr.groupez.template.commands.commands.CommandTemplate;
+import fr.groupez.template.placeholder.LocalPlaceholder;
+import fr.groupez.template.save.Config;
+import fr.groupez.template.zcore.ZPlugin;
 
 /**
  * System to create your plugins very simple Projet:
