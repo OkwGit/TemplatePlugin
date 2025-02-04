@@ -1,5 +1,6 @@
 package fr.groupez.template.commands;
 
+import fr.groupez.template.ZTemplate;
 import fr.groupez.template.messages.Message;
 import fr.groupez.template.save.Config;
 import fr.groupez.template.zcore.ZPlugin;
@@ -24,7 +25,7 @@ import java.util.Optional;
  */
 public abstract class VCommand extends Arguments {
 
-    protected final ZPlugin plugin;
+    protected final ZTemplate plugin;
     /**
      * List of sub-commands for this command.
      */
@@ -68,7 +69,7 @@ public abstract class VCommand extends Arguments {
      *
      * @param plugin the plugin instance.
      */
-    public VCommand(ZPlugin plugin) {
+    public VCommand(ZTemplate plugin) {
         super();
         this.plugin = plugin;
     }
@@ -486,7 +487,7 @@ public abstract class VCommand extends Arguments {
      * @param args          the arguments of the command.
      * @return the command type.
      */
-    public CommandType prePerform(ZPlugin plugin, CommandSender commandSender, String[] args) {
+    public CommandType prePerform(ZTemplate plugin, CommandSender commandSender, String[] args) {
 
         // Update the number of arguments according to the number of parents
         this.parentCount = this.parentCount(0);
@@ -531,7 +532,7 @@ public abstract class VCommand extends Arguments {
      * @param plugin the plugin instance.
      * @return the command type.
      */
-    protected abstract CommandType perform(ZPlugin plugin);
+    protected abstract CommandType perform(ZTemplate plugin);
 
     /**
      * Checks if there are any sub-commands with the same name as this command.

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tcoded.folialib.FoliaLib;
 import com.tcoded.folialib.impl.PlatformScheduler;
+import fr.groupez.template.ZTemplate;
 import fr.groupez.template.commands.CommandManager;
 import fr.groupez.template.commands.VCommand;
 import fr.groupez.template.messages.MessageLoader;
@@ -99,7 +100,7 @@ public abstract class ZPlugin extends JavaPlugin {
         MessageLoader messageLoader = new MessageLoader(this);
         messageLoader.load();
 
-        this.commandManager = new CommandManager(this);
+        this.commandManager = new CommandManager((ZTemplate) this);
     }
 
     /**

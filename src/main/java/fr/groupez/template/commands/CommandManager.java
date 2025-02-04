@@ -1,7 +1,7 @@
 package fr.groupez.template.commands;
 
+import fr.groupez.template.ZTemplate;
 import fr.groupez.template.messages.Message;
-import fr.groupez.template.zcore.ZPlugin;
 import fr.groupez.template.zcore.logger.Logger;
 import fr.groupez.template.zcore.logger.Logger.LogType;
 import fr.groupez.template.zcore.utils.ZUtils;
@@ -38,7 +38,7 @@ public class CommandManager extends ZUtils implements CommandExecutor, TabComple
         }
     }
 
-    private final ZPlugin plugin;
+    private final ZTemplate plugin;
     private final List<VCommand> commands = new ArrayList<VCommand>();
 
     /**
@@ -46,7 +46,7 @@ public class CommandManager extends ZUtils implements CommandExecutor, TabComple
      *
      * @param template
      */
-    public CommandManager(ZPlugin template) {
+    public CommandManager(ZTemplate template) {
         this.plugin = template;
     }
 
@@ -198,7 +198,7 @@ public class CommandManager extends ZUtils implements CommandExecutor, TabComple
         this.commands.forEach(command -> {
             if (command.sameSubCommands()) {
                 Logger.info(command + " command to an argument similar to its parent command !", LogType.ERROR);
-                this.plugin.getPluginLoader().disablePlugin(this.plugin);
+                Bukkit.getPluginManager().disablePlugin(this.plugin);
             }
         });
     }

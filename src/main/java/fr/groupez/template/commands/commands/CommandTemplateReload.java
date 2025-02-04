@@ -1,5 +1,6 @@
 package fr.groupez.template.commands.commands;
 
+import fr.groupez.template.ZTemplate;
 import fr.groupez.template.commands.VCommand;
 import fr.groupez.template.zcore.ZPlugin;
 import fr.groupez.template.messages.Message;
@@ -16,7 +17,7 @@ public class CommandTemplateReload extends VCommand {
 	}
 
 	@Override
-	protected CommandType perform(ZPlugin plugin) {
+	protected CommandType perform(ZTemplate plugin) {
 		
 		plugin.reloadFiles();
 		message(sender, Message.RELOAD);

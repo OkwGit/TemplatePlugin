@@ -1,5 +1,6 @@
 package fr.groupez.template.commands.commands;
 
+import fr.groupez.template.ZTemplate;
 import fr.groupez.template.commands.VCommand;
 import fr.groupez.template.zcore.ZPlugin;
 import fr.groupez.template.zcore.enums.Permission;
@@ -14,7 +15,7 @@ public class CommandTemplate extends VCommand {
 	}
 
 	@Override
-	protected CommandType perform(ZPlugin plugin) {
+	protected CommandType perform(ZTemplate plugin) {
 		syntaxMessage();
 		return CommandType.SUCCESS;
 	}
