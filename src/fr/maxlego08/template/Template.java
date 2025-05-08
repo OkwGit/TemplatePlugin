@@ -12,6 +12,11 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 /**
  * System to create your plugins very simply Projet:
@@ -43,12 +48,14 @@ public class Template extends ZPlugin implements Listener {
         // Notify all online players
         getLogger().info("[DEBUG] Registering events...");
         Bukkit.getPluginManager().registerEvents(this, this);
-        // Give all online players Haste II
+        // Give all online players Haste II and Night Vision II
         Bukkit.getOnlinePlayers().forEach(player -> {
-            player.sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II");
-            getLogger().info("[DEBUG] Applying Haste II to " + player.getName());
-            boolean result = player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1, true, false));
-            getLogger().info("[DEBUG] addPotionEffect returned: " + result);
+            player.sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II and Night Vision II");
+            getLogger().info("[DEBUG] Applying Haste II and Night Vision II to " + player.getName());
+            boolean hasteResult = player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1, true, false));
+            boolean nightVisionResult = player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1, true, false));
+            getLogger().info("[DEBUG] addPotionEffect (Haste) returned: " + hasteResult);
+            getLogger().info("[DEBUG] addPotionEffect (Night Vision) returned: " + nightVisionResult);
         });
     }
 
@@ -65,21 +72,66 @@ public class Template extends ZPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         getLogger().info("[DEBUG] onPlayerJoin fired for " + event.getPlayer().getName());
-        event.getPlayer().sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II on join");
-        getLogger().info("[DEBUG] Applying Haste II to " + event.getPlayer().getName() + " on join");
-        boolean result = event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1, true, false));
-        getLogger().info("[DEBUG] addPotionEffect returned: " + result);
+        event.getPlayer().sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II and Night Vision II on join");
+        getLogger().info("[DEBUG] Applying Haste II and Night Vision II to " + event.getPlayer().getName() + " on join");
+        boolean hasteResult = event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1, true, false));
+        boolean nightVisionResult = event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1, true, false));
+        getLogger().info("[DEBUG] addPotionEffect (Haste) returned: " + hasteResult);
+        getLogger().info("[DEBUG] addPotionEffect (Night Vision) returned: " + nightVisionResult);
+        // Only give pickaxe if player doesn't already have a diamond pickaxe
+        boolean hasPickaxe = false;
+        for (ItemStack item : event.getPlayer().getInventory().getContents()) {
+            if (item != null && item.getType() == Material.DIAMOND_PICKAXE) {
+                hasPickaxe = true;
+                break;
+            }
+        }
+        if (!hasPickaxe) {
+            ItemStack pickaxe = new ItemStack(Material.DIAMOND_PICKAXE, 1);
+            ItemMeta meta = pickaxe.getItemMeta();
+            meta.addEnchant(Enchantment.DIG_SPEED, 3, true); // Efficiency III
+            meta.addEnchant(Enchantment.DURABILITY, 100, true); // Unbreaking 100
+            pickaxe.setItemMeta(meta);
+            event.getPlayer().getInventory().addItem(pickaxe);
+        }
     }
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         getLogger().info("[DEBUG] onPlayerRespawn fired for " + event.getPlayer().getName());
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            event.getPlayer().sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II on respawn");
-            getLogger().info("[DEBUG] Applying Haste II to " + event.getPlayer().getName() + " on respawn");
-            boolean result = event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1, true, false));
-            getLogger().info("[DEBUG] addPotionEffect returned: " + result);
+            event.getPlayer().sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II and Night Vision II on respawn");
+            getLogger().info("[DEBUG] Applying Haste II and Night Vision II to " + event.getPlayer().getName() + " on respawn");
+            boolean hasteResult = event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1, true, false));
+            boolean nightVisionResult = event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 1, true, false));
+            getLogger().info("[DEBUG] addPotionEffect (Haste) returned: " + hasteResult);
+            getLogger().info("[DEBUG] addPotionEffect (Night Vision) returned: " + nightVisionResult);
+            // Only give pickaxe if player doesn't already have a diamond pickaxe
+            boolean hasPickaxe = false;
+            for (ItemStack item : event.getPlayer().getInventory().getContents()) {
+                if (item != null && item.getType() == Material.DIAMOND_PICKAXE) {
+                    hasPickaxe = true;
+                    break;
+                }
+            }
+            if (!hasPickaxe) {
+                ItemStack pickaxe = new ItemStack(Material.DIAMOND_PICKAXE, 1);
+                ItemMeta meta = pickaxe.getItemMeta();
+                meta.addEnchant(Enchantment.DIG_SPEED, 3, true); // Efficiency III
+                meta.addEnchant(Enchantment.DURABILITY, 100, true); // Unbreaking 100
+                pickaxe.setItemMeta(meta);
+                event.getPlayer().getInventory().addItem(pickaxe);
+            }
         }, 1L);
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        if (event.getEntity() instanceof org.bukkit.entity.Player) {
+            if (event.getFoodLevel() < ((org.bukkit.entity.Player) event.getEntity()).getFoodLevel()) {
+                event.setCancelled(true);
+            }
+        }
     }
 
 }
