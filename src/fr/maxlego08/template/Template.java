@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import fr.maxlego08.template.listener.RandomChestListener;
 
 /**
  * System to create your plugins very simply Projet:
@@ -48,6 +49,7 @@ public class Template extends ZPlugin implements Listener {
         // Notify all online players
         getLogger().info("[DEBUG] Registering events...");
         Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new RandomChestListener(), this);
         // Give all online players Haste II and Night Vision II
         Bukkit.getOnlinePlayers().forEach(player -> {
             player.sendMessage("[TemplatePlugin DEBUG] Attempting to apply Haste II and Night Vision II");
