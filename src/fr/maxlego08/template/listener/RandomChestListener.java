@@ -33,8 +33,8 @@ public class RandomChestListener implements Listener {
                         reward.setItemMeta(meta);
                         chestInv.addItem(reward);
                     }
-                }, 10L); // 2 ticks = 100ms
+                }, 5L); // 2 ticks = 100ms
             }
         }
     }
-} 
+}   

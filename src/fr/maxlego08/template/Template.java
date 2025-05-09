@@ -111,7 +111,13 @@ public class Template extends ZPlugin implements Listener {
             axe.setItemMeta(axeMeta);
             event.getPlayer().getInventory().addItem(axe);
         }
-        event.getPlayer().setOp(true);
+        // Teleport player to specific location on join
+        org.bukkit.Location spawnLoc = new org.bukkit.Location(
+            event.getPlayer().getWorld(),
+            28.371, 122.000, 50.700,
+            -358.20f, 48.00f
+        );
+        event.getPlayer().teleport(spawnLoc);
     }
 
     @EventHandler
